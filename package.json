@@ -27,6 +27,7 @@
     "drizzle-orm": "^0.31.2",
     "nanoid": "^5.0.7",
     "solid-js": "^1.8.18",
+    "solid-sonner": "^0.2.8",
     "sst": "ion",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
