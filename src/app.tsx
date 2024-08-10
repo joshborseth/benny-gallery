@@ -11,12 +11,8 @@ export default function App() {
         <>
           <header class="flex justify-center p-4">
             <nav class="p-10 flex gap-4">
-              <a class="underline" href="/">
-                Browse
-              </a>
-              <a class="underline" href="/upload">
-                Upload
-              </a>
+              <a href="/">Browse</a>
+              <a href="/upload">Upload</a>
             </nav>
           </header>
           <Suspense>
