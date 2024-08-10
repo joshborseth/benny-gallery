@@ -1,0 +1,18 @@
+// app.config.ts
+import { defineConfig } from "@solidjs/start/config";
+var app_config_default = defineConfig({
+  vite: {
+    ssr: { external: ["drizzle-orm"] }
+  },
+  server: {
+    preset: "aws-lambda-streaming"
+  },
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "./src")
+    }
+  }
+});
+export {
+  app_config_default as default
+};

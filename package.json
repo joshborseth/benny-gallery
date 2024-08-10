@@ -4,23 +4,32 @@
   "scripts": {
     "build": "vinxi build",
     "dev": "vinxi dev",
-    "start": "vinxi start"
+    "start": "vinxi start",
+    "db:push": "drizzle-kit push"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.10",
     "@types/node": "^20.14.8",
     "autoprefixer": "^10.4.20",
-    "drizzle-kit": "^0.22.7",
+    "drizzle-kit": "^0.22.8",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.9"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.627.0",
+    "@aws-sdk/s3-request-presigner": "^3.627.0",
+    "@kobalte/core": "^0.13.4",
     "@solidjs/router": "^0.14.1",
     "@solidjs/start": "^1.0.2",
     "better-sqlite3": "^11.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.2",
+    "nanoid": "^5.0.7",
     "solid-js": "^1.8.18",
     "sst": "ion",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7",
     "vinxi": "^0.4.1"
   },
   "engines": {

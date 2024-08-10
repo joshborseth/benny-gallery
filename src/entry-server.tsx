@@ -12,7 +12,7 @@ export default createHandler(() => (
           {assets}
         </head>
         <body class="h-full">
-          <div class="bg-slushyNoobzDarkBg text-slushyNoobzPurple h-full" id="app">
+          <div class="h-full" id="app">
             {children}
           </div>
           {scripts}

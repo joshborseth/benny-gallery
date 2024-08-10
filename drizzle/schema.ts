@@ -1,7 +1,9 @@
-import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const Users = sqliteTable("users", {
+export const media = sqliteTable("media", {
   id: integer("id").primaryKey().unique().notNull(),
-  username: text("username").notNull().default(""),
-  password: text("password").notNull().default(""),
+  url: text("url").notNull(),
+  createdAt: text("createdAt").notNull(),
+  updatedAt: text("updatedAt").notNull(),
+  type: text("type", { enum: ["video", "picture"] }).notNull(),
 });
