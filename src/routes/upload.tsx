@@ -1,10 +1,9 @@
-import { db } from "@/db";
-import { media } from "@/schema";
+// import { db } from "@/db";
+// import { media } from "@/schema";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { action, createAsync, redirect, RouteDefinition, useAction } from "@solidjs/router";
 import { nanoid } from "nanoid";
-import { createSignal, Show } from "solid-js";
+import { createResource, createSignal, Show } from "solid-js";
 import { toast } from "solid-sonner";
 import { Resource } from "sst";
 import { Button } from "~/components/ui/button";
@@ -18,21 +17,16 @@ async function presignedUrl() {
   return await getSignedUrl(new S3Client({}), command);
 }
 
-const saveToDb = action(async (url: string) => {
-  await db.insert(media).values({ url, type: "picture" });
-  throw redirect(`/`);
-});
-
-export const route = {
-  preload: () => presignedUrl(),
-} satisfies RouteDefinition;
+// const saveToDb = action(async (url: string) => {
+//   await db.insert(media).values({ url, type: "picture" });
+//   throw redirect(`/`);
+// });
 
 export default function Home() {
-  const url = createAsync(() => presignedUrl());
+  const [url, { mutate, refetch }] = createResource(async () => await presignedUrl());
   let inputRef: unknown;
-  const [fileName, setFileName] = createSignal("");
   const [uploadedImageUrl, setUploadedImageUrl] = createSignal("");
-  const submit = useAction(saveToDb);
+  // const submit = useAction(saveToDb);
   return (
     <div>
       <h1 class="font-bold text-3xl text-center">Upload</h1>
@@ -40,7 +34,7 @@ export default function Home() {
         class="flex flex-col gap-4 items-center justify-center pt-6"
         onSubmit={(e) => {
           e.preventDefault();
-          submit(uploadedImageUrl());
+          // submit(uploadedImageUrl());
         }}
       >
         <div class="flex gap-2">
@@ -49,7 +43,8 @@ export default function Home() {
             type="file"
             onChange={async (e) => {
               const file = e.target.files?.[0];
-              if (!file) return;
+              if (!file) return setUploadedImageUrl("");
+              console.log(file);
               try {
                 const image = await fetch(url() as string, {
                   body: file,
@@ -59,7 +54,9 @@ export default function Home() {
                     "Content-Disposition": `attachment; filename="${file.name}"`,
                   },
                 });
+
                 const imageUrl = image.url.split("?")[0];
+                await refetch();
                 setUploadedImageUrl(imageUrl);
               } catch (e) {
                 if (e instanceof Error) toast.error(e.message);
@@ -82,6 +79,7 @@ export default function Home() {
             Upload
           </Button>
         </div>
+        {uploadedImageUrl()}
         <Show fallback={<p>Nothing selected.</p>} when={uploadedImageUrl()}>
           <img src={uploadedImageUrl()} alt="uploaded image" height={250} width={250} />
         </Show>
