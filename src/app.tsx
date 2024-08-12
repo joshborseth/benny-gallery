@@ -24,7 +24,7 @@ export default function App() {
             </Menubar>
           </header>
           <Suspense>
-            <main class="max-w-4xl w-full mx-auto h-full pt-4">{props.children}</main>
+            <main class="max-w-4xl w-full mx-auto pt-4">{props.children}</main>
             <Toaster />
           </Suspense>
         </>

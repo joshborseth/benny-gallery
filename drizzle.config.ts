@@ -1,9 +1,7 @@
 export default {
   dialect: "sqlite",
-  schema: "./drizzle/schema.ts",
-  out: "./drizzle/migrations/",
-  // driver: "better-sqlite",
+  schema: "./src/db/schema.ts",
   dbCredentials: {
-    url: './drizzle/db.sqlite',
+    url: "file:./db.sqlite",
   },
 };
