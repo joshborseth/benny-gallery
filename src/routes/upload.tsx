@@ -1,8 +1,8 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { action, redirect, useAction } from "@solidjs/router";
+import { action, createAsync, redirect, useAction } from "@solidjs/router";
 import { nanoid } from "nanoid";
-import { createResource, createSignal, Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { toast } from "solid-sonner";
 import { Resource } from "sst";
 import { Button } from "~/components/ui/button";
@@ -25,45 +25,49 @@ const saveToDb = action(async (url: string) => {
 });
 
 export default function Home() {
-  const [url, { refetch }] = createResource(async () => await presignedUrl());
+  const url = createAsync(() => presignedUrl());
   let inputRef: unknown;
-  const [uploadedImageUrl, setUploadedImageUrl] = createSignal("");
+  const [file, setFile] = createSignal<File>();
+  const [loading, setLoading] = createSignal(false);
   const submit = useAction(saveToDb);
   return (
     <div>
       <h1 class="font-bold text-3xl text-center">Upload</h1>
       <form
         class="flex flex-col gap-4 items-center justify-center pt-6"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          submit(uploadedImageUrl());
+          if (!file()) return;
+          setLoading(true);
+          try {
+            const image = await fetch(url() as string, {
+              body: file(),
+              method: "PUT",
+              headers: {
+                //we check earlier if file is undefined so its okay to use !
+                "Content-Type": file()!.type,
+                "Content-Disposition": `attachment; filename="${file()!.name}"`,
+              },
+            });
+            const imageUrl = image.url.split("?")[0];
+            await submit(imageUrl);
+          } catch (e) {
+            if (e instanceof Error) {
+              toast.error(e.message);
+            } else {
+              toast.error("Something went wrong");
+            }
+            setLoading(false);
+          }
         }}
       >
         <div class="flex gap-2">
           <input
+            onChange={(e) => {
+              setFile(e.target.files?.[0]);
+            }}
             name="file"
             type="file"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return setUploadedImageUrl("");
-              await refetch();
-              try {
-                const image = await fetch(url() as string, {
-                  body: file,
-                  method: "PUT",
-                  headers: {
-                    "Content-Type": file.type,
-                    "Content-Disposition": `attachment; filename="${file.name}"`,
-                  },
-                });
-
-                const imageUrl = image.url.split("?")[0];
-                setUploadedImageUrl(imageUrl);
-              } catch (e) {
-                if (e instanceof Error) toast.error(e.message);
-                toast.error("Something went wrong");
-              }
-            }}
             ref={inputRef as HTMLInputElement}
             hidden
             accept="image/png, image/jpeg"
@@ -76,12 +80,15 @@ export default function Home() {
           >
             Choose File
           </Button>
-          <Button disabled={!uploadedImageUrl()} type="submit">
+          <Button disabled={!file()} type="submit">
             Upload
           </Button>
         </div>
-        <Show fallback={<p>Nothing selected.</p>} when={uploadedImageUrl()}>
-          <img src={uploadedImageUrl()} alt="uploaded image" height={250} width={250} />
+        <Show fallback={<p>Nothing selected.</p>} when={file()}>
+          <p>{file()?.name}</p>
+        </Show>
+        <Show when={loading()}>
+          <p class="text-primary/60">Loading...</p>
         </Show>
       </form>
     </div>
